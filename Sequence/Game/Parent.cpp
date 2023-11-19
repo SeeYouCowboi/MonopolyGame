@@ -111,7 +111,7 @@ Parent::Mode Parent::getMode() const {
 void Parent::startLoading(){
 	SAFE_DELETE( mState );
 	std::ostringstream oss;
-	oss << "data/stageData/" << mStageID << ".txt";
+	oss << "data/stageData/stageData.txt";
 	File file(oss.str().c_str()); //const char *
 	mState = new State( file.getData(), file.getSize());
 }

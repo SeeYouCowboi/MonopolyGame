@@ -19,8 +19,6 @@ public:
 	bool hasCleared() const;
 	bool isAlive( int playerID ) const; //还活着吗
 private:
-	//火焰设置。坐标是炸弹坐标
-	void setFire( int x, int y );
 
 	//不动的物体
 	Array2D< StaticObject > mStaticObjects;
@@ -28,7 +26,6 @@ private:
 	DynamicObject* mDynamicObjects;
 	int mDynamicObjectNumber;
 
-	int mStageID;
 
 	Image* mImage; //图片
 	char* mStageData;
