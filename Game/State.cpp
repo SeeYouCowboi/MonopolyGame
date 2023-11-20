@@ -13,17 +13,13 @@ State::State( const char* stageData, int size) :
 mImage( 0 ),
 mDynamicObjects( 0 ),
 mDynamicObjectNumber( 0 ),
-mStageData(0),
+mStaticData(0),
 mStageDataSize(size) {
 	Framework f = Framework::instance(); //再用几次
 
 	mImage = new Image( "data/image/bakudanBitoImage.tga" );
 
-	mStageData = new char[size + 1]; //0末尾部分。
-	for (int i = 0; i < size; ++i) {
-		mStageData[i] = stageData[i];
-	}
-	mStageData[size] = '\0'; //NULL终止
+	
 }
 
 State::~State(){

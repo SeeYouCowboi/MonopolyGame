@@ -5,21 +5,15 @@ using namespace GameLib;
 #include "Image.h"
 
 StaticObject::StaticObject() :
-mCount( 0 ),
-mBombOwner( 0 ),
-mFlags( 0 ){
+mFlag( FLAG_NONE ){
 }
 
-void StaticObject::setFlag( unsigned f ){
-	mFlags |= f;
+void StaticObject::setFlag( Flag f ){
+	mFlag = f;
 }
 
-void StaticObject::resetFlag( unsigned f ){
-	mFlags &= ~f;
-}
-
-bool StaticObject::checkFlag( unsigned f ) const {
-	return ( mFlags & f ) ? true : false;
+bool StaticObject::checkFlag( Flag f ) const {
+	return ( mFlag == f ) ? true : false;
 }
 
 void StaticObject::draw( int x, int y, const Image* image ) const {
@@ -85,4 +79,31 @@ void StaticObject::drawExplosion( int x, int y, const Image* image ) const {
 	if ( srcX != -1 ){
 		image->draw( x*32, y*32, srcX, srcY, 32, 32 );
 	}
+}
+
+
+std::string Estate::getCountry() const {
+	return mCountry;
+}
+
+std::string Estate::getCity() const {
+	return mCity;
+}
+
+unsigned Estate::getPurPrice(unsigned i) const {
+	ASSERT(i < 3);
+	return mPurcPrice[i];
+}
+
+unsigned Estate::getTollPrice(unsigned i) const {
+	ASSERT(i < 6);
+	return mTollPrice[i];
+}
+
+unsigned Estate::getBelonging() const {
+	return mBelonging;
+}
+
+unsigned Estate::getState() const {
+	return mState;
 }

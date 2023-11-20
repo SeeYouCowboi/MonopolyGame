@@ -20,15 +20,13 @@ public:
 	bool isAlive( int playerID ) const; //还活着吗
 private:
 
-	//不动的物体
-	Array2D< StaticObject > mStaticObjects;
 	//运动物体
 	DynamicObject* mDynamicObjects;
 	int mDynamicObjectNumber;
 
 
 	Image* mImage; //图片
-	char* mStageData;
+	StaticObject* mStaticData;
 	int mStageDataSize;
 };
 

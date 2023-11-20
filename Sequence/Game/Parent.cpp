@@ -20,10 +20,12 @@ mStageID( 0 ),
 mLife( INITIALI_LIFE_NUMBER ),
 mNextSequence( NEXT_NONE ),
 mChild( 0 ){
-	if ( mode == GrandParent::MODE_1P ){
+	if ( mode == GrandParent::MODE_4P ){
+		mStageID = 0;
+	}if (mode == GrandParent::MODE_5P) {
 		mStageID = 1;
 	}else{
-		mStageID = 0;
+		mStageID = 2;
 	}
 	//一开始Ready
 	mChild = new Ready();
@@ -101,8 +103,8 @@ int Parent::getLifeNumber() const {
 Parent::Mode Parent::getMode() const {
 	Mode r = MODE_NONE;
 	switch ( GrandParent::instance()->getMode() ){
-		case GrandParent::MODE_1P: r = MODE_1P; break;
-		case GrandParent::MODE_2P: r = MODE_2P; break;
+		case GrandParent::MODE_4P: r = MODE_4P; break;
+		case GrandParent::MODE_5P: r = MODE_5P; break;
 		default: ASSERT( false ); break;
 	}
 	return r;
