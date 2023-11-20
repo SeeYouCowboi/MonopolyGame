@@ -26,8 +26,9 @@ public:
 		NEXT_NONE,
 	};
 	enum Mode{
-		MODE_1P,
-		MODE_2P,
+		MODE_4P,
+		MODE_5P,
+		MODE_6P,
 		MODE_NONE,
 	};
 	enum PlayerID{

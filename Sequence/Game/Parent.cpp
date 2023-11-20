@@ -105,6 +105,7 @@ Parent::Mode Parent::getMode() const {
 	switch ( GrandParent::instance()->getMode() ){
 		case GrandParent::MODE_4P: r = MODE_4P; break;
 		case GrandParent::MODE_5P: r = MODE_5P; break;
+		case GrandParent::MODE_6P: r = MODE_6P; break;
 		default: ASSERT( false ); break;
 	}
 	return r;

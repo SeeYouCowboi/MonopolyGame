@@ -1,7 +1,8 @@
 ﻿#ifndef INCLUDED_GAME_STATE_H
 #define INCLUDED_GAME_STATE_H
 
-#include "Array2D.h"
+
+#include <vector> 
 
 class Image; //只需要声明。不必包含它。
 class StaticObject;
@@ -26,7 +27,7 @@ private:
 
 
 	Image* mImage; //图片
-	StaticObject* mStaticData;
+	std::vector<StaticObject*> mStaticObjs;
 	int mStageDataSize;
 };
 

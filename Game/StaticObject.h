@@ -24,25 +24,30 @@ public:
 
 	bool checkFlag( Flag ) const;
 	void setFlag( Flag );
+	void setID(unsigned);
 	void draw( int x, int y, const Image* ) const;
 	
 private:
 	Flag mFlag; //标志
+	unsigned mID;
 };
 
-class Estate : StaticObject {
+class Estate : public StaticObject {
 public:
-	unsigned ID;
 	std::string getCountry()const;
 	std::string getCity()const;
 	unsigned getPurPrice( unsigned )const;
 	unsigned getTollPrice( unsigned )const;
 	unsigned getBelonging()const;
 	unsigned getState()const;
+	void setPurPrice(int, unsigned);
+	void setTollPrice(int, unsigned);
+
+	Estate(unsigned, std::string, std::string);
 private:
 	std::string mCountry;
 	std::string mCity;
-	unsigned int mPurcPrice[3];
+	unsigned int mPurPrice[3];
 	unsigned int mTollPrice[6];
 	unsigned mBelonging;
 	unsigned mState;

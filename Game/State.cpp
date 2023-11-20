@@ -5,6 +5,9 @@
 #include "Game/DynamicObject.h"
 #include "SoundManager.h"
 #include "Image.h"
+#include <iostream>
+#include <cstring>
+#include <sstream>
 
 using namespace GameLib;
 
@@ -13,13 +16,98 @@ State::State( const char* stageData, int size) :
 mImage( 0 ),
 mDynamicObjects( 0 ),
 mDynamicObjectNumber( 0 ),
-mStaticData(0),
+mStaticObjs(0),
 mStageDataSize(size) {
 	Framework f = Framework::instance(); //再用几次
 
 	mImage = new Image( "data/image/bakudanBitoImage.tga" );
 
+	int maxs = size;
+	std::istringstream stageDataStream(stageData);
+	char c = '?';
+	bool loopFlag = false;
+	unsigned iid = 0;
+	while (true)
+	{
+		while (c != '-') {
+			stageDataStream >> c;
+			if (c == '=') {
+				loopFlag = true;
+				break;
+			}
+		}
+		if (loopFlag) break;
+		if (c == '-') {
+			iid++;
+			stageDataStream >> c;
+			std::string cntry, city, emp;
+			unsigned pri;
+			Estate ee = Estate::Estate(0, "unknown", "unknown");
+			StaticObject so;
+			switch (c)
+			{
+			case 'e':
+				std::getline(stageDataStream, emp);
+				std::getline(stageDataStream, cntry);
+				std::getline(stageDataStream, city);
+				city.erase(city.length() - 1);
+				cntry.erase(cntry.length() - 1);
+				ee = Estate::Estate(iid, cntry, city);
+				for (int i = 0; i < 3; i++) {
+					stageDataStream >> pri;
+					ee.setPurPrice(i, pri);
+				}
+				for (int i = 0; i < 6; i++) {
+					stageDataStream >> pri;
+					ee.setTollPrice(i, pri);
+				}
+				mStaticObjs.push_back(&ee);
+				break;
+			case 's':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_START);
+				mStaticObjs.push_back(&so);
+				break;
+			case 'w':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_WATERCOMP);
+				mStaticObjs.push_back(&so);
+				break;
+			case 't':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_TREASURE);
+				mStaticObjs.push_back(&so);
+				break;
+			case 'x':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_TAX);
+				mStaticObjs.push_back(&so);
+				break;
+			case 'a':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_AIRPORT);
+				mStaticObjs.push_back(&so);
+				break;
+			case 'o':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_TOPRISON);
+				mStaticObjs.push_back(&so);
+				break;
+			case 'v':
+				so.setID(iid);
+				so.setFlag(StaticObject::FLAG_VACATION);
+				mStaticObjs.push_back(&so);
+				break;
+			default:
+				ASSERT("Bakana!");
+				break;
+			}
+		}
+		if (c == '\n')stageDataStream >> c;
+		
+	}
 	
+
 }
 
 State::~State(){
