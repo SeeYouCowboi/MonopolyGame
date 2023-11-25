@@ -17,8 +17,6 @@ public:
 	void update();
 	void draw() const;
 	//从外部获取的信息
-	bool hasCleared() const;
-	bool isAlive( int playerID ) const; //还活着吗
 private:
 
 	//运动物体
@@ -26,7 +24,8 @@ private:
 	int mDynamicObjectNumber;
 
 
-	Image* mImage; //图片
+	Image* mObjImage; 
+	Image* mMapImage; //图片
 	std::vector<StaticObject*> mStaticObjs;
 	int mStageDataSize;
 };

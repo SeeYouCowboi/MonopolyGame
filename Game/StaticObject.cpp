@@ -5,7 +5,8 @@ using namespace GameLib;
 #include "Image.h"
 
 StaticObject::StaticObject() :
-mFlag( FLAG_NONE ){
+mFlag( FLAG_NONE ),
+mID( 0 ){
 }
 
 void StaticObject::setFlag( Flag f ){
@@ -48,6 +49,8 @@ Estate::Estate(unsigned id, std::string cntry, std::string city) :
 	mCountry(cntry),
 	mCity(city),
 	mBelonging(0),
+	mPurPrice(),
+	mTollPrice(),
 	mState(0)
 	{
 	StaticObject::setFlag(FLAG_ESTATE);

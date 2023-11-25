@@ -24,7 +24,7 @@ mChild( 0 ){
 		mStageID = 0;
 	}if (mode == GrandParent::MODE_5P) {
 		mStageID = 1;
-	}else{
+	}if (mode == GrandParent::MODE_6P) {
 		mStageID = 2;
 	}
 	//一开始Ready

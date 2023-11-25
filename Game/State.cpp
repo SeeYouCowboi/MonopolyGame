@@ -13,21 +13,22 @@ using namespace GameLib;
 
 
 State::State( const char* stageData, int size) :
-mImage( 0 ),
+mObjImage( 0 ),
+mMapImage( 0 ),
 mDynamicObjects( 0 ),
 mDynamicObjectNumber( 0 ),
 mStaticObjs(0),
 mStageDataSize(size) {
+	Framework::instance().setwidth(600);
 	Framework f = Framework::instance(); //再用几次
-
-	mImage = new Image( "data/image/bakudanBitoImage.tga" );
-
+	mObjImage = new Image( "data/image/MonopolyObj.tga" );
+	mMapImage = new Image("data/image/MonopolyTable.tga");
 	int maxs = size;
 	std::istringstream stageDataStream(stageData);
 	char c = '?';
 	bool loopFlag = false;
 	unsigned iid = 0;
-	while (true)
+	while (true) // 读取stageData.txt数据
 	{
 		while (c != '-') {
 			stageDataStream >> c;
@@ -111,28 +112,22 @@ mStageDataSize(size) {
 }
 
 State::~State(){
-	SAFE_DELETE( mImage );
+	SAFE_DELETE( mObjImage );
+	SAFE_DELETE( mMapImage );
 	SAFE_DELETE_ARRAY( mDynamicObjects );
 }
 
 void State::draw() const {
 
-	/*绘制背景
-	for ( int y = 0; y < height; ++y ){
-		for ( int x = 0; x < width; ++x ){
-			mstaticobjects( x, y ).draw( x, y, mimage );
-		}
+	// TODO
+	// 绘制StaticObjects
+	
+	// 绘制DynamicObjects
+	for ( int i = 0; i < mDynamicObjectNumber; ++i ){
+		mDynamicObjects[ i ].draw( mObjImage );
 	}
-	绘制前景
-	for ( int i = 0; i < mdynamicobjectnumber; ++i ){
-		mdynamicobjects[ i ].draw( mimage );
-	}
-	绘制冲击波
-	for ( int y = 0; y < height; ++y ){
-		for ( int x = 0; x < width; ++x ){
-			mstaticobjects( x, y ).drawexplosion( x, y, mimage );
-		}
-	}*/
+	// 绘制背景
+	mMapImage->draw();
 }
 
 void State::update(){
@@ -285,25 +280,25 @@ void State::update(){
 }
 
 
-bool State::hasCleared() const {
-	//清除是否没有敌人
-	for ( int i = 0; i < mDynamicObjectNumber; ++i ){
-		if ( mDynamicObjects[ i ].isEnemy() ){
-			return false;
-		}
-	}
-	return true;
-}
-
-bool State::isAlive( int playerID ) const {
-	//如果还活着
-	for ( int i = 0; i < mDynamicObjectNumber; ++i ){
-		if ( mDynamicObjects[ i ].mType == DynamicObject::TYPE_PLAYER ){
-			if ( mDynamicObjects[ i ].mPlayerID == playerID ){
-				return true;
-			}
-		}
-	}
-	return false;
-}
+//bool State::hasCleared() const {
+//	//清除是否没有敌人
+//	for ( int i = 0; i < mDynamicObjectNumber; ++i ){
+//		if ( mDynamicObjects[ i ].isEnemy() ){
+//			return false;
+//		}
+//	}
+//	return true;
+//}
+//
+//bool State::isAlive( int playerID ) const {
+//	//如果还活着
+//	for ( int i = 0; i < mDynamicObjectNumber; ++i ){
+//		if ( mDynamicObjects[ i ].mType == DynamicObject::TYPE_PLAYER ){
+//			if ( mDynamicObjects[ i ].mPlayerID == playerID ){
+//				return true;
+//			}
+//		}
+//	}
+//	return false;
+//}
 

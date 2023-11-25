@@ -42,7 +42,7 @@ void Title::update( Parent* parent ){
 		}else if ( mCursorPosition == 1 ){
 			parent->setMode( Parent::MODE_5P );
 		}
-		else if (mCursorPosition == 1) {
+		else if (mCursorPosition == 1) { 
 			parent->setMode(Parent::MODE_6P);
 		}else{
 			HALT( "arienai" );
