@@ -12,7 +12,7 @@ class State{
 public:
 	//给出阶段编号并构建。0是两个人
 	static const int STAGE_ID_2PLAYERS = 0;
-	State( const char* stageData, int size);
+	State( const char* stageData, int size, int sid);
 	~State();
 	void update();
 	void draw() const;
@@ -23,11 +23,12 @@ private:
 	DynamicObject* mDynamicObjects;
 	int mDynamicObjectNumber;
 
-
+	int mStageID;
 	Image* mObjImage; 
 	Image* mMapImage; //图片
 	std::vector<StaticObject*> mStaticObjs;
 	int mStageDataSize;
+	int mTakeTure;
 };
 
 #endif

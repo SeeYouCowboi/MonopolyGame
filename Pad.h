@@ -13,8 +13,8 @@ public:
 		Q, //quit。 退出按钮
 	};
 	//某个按钮
-	static bool isOn( Button, int playerID = 0 );
-	static bool isTriggered( Button, int playerID = 0 );
+	static bool isOn( Button, int playerid=0 );
+	static bool isTriggered( Button, int playerid=0 );
 };
 
 #endif

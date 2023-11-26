@@ -66,6 +66,22 @@ mPlayerID( 0 ),
 mMoney( -1 ){
 }
 
+DynamicObject::DynamicObject(Type mType, int mPosi, int mMoney, unsigned mPlayerID):
+	mType(mType),
+	mPosi(mPosi),
+	mPlayerID(mPlayerID),
+	mMoney(mMoney) {
+}
+
+bool DynamicObject::hasPressedRollButton() {
+	if (mType == TYPE_PLAYER) {
+		return Pad::isTriggered(Pad::A);
+	}
+	else {
+		return false;
+	}
+}
+
 void DynamicObject::set( int x, int y, Type type ){
 	////转换为内部坐标
 	//mX = convertCellToInner( x );
@@ -85,9 +101,6 @@ void DynamicObject::set( int x, int y, Type type ){
 }
 
 void DynamicObject::draw( const Image* image ) const {
-	if ( isDead() ){
-		return;
-	}
 	//将内部坐标转换为像素坐标（+500四舍五入）
 	int dstX = convertPosiToPixelx( mPosi );
 	int dstY = convertPosiToPixely( mPosi );
@@ -97,17 +110,17 @@ void DynamicObject::draw( const Image* image ) const {
 	switch ( mType ){
 		case TYPE_PLAYER:
 			switch ( mPlayerID ){
-				case 1: srcX = 0; srcY = 0; break;
-				case 2: srcX = 32; srcY = 0; break;
-				case 3: srcX = 64; srcY = 0; break;
-				case 4: srcX = 0; srcY = 32; break;
-				case 5: srcX = 32; srcY = 32; break;
-				case 6: srcX = 64; srcY = 32; break;
+				case 0: srcX = 0; srcY = 0; break;
+				case 1: srcX = 32; srcY = 0; break;
+				case 2: srcX = 64; srcY = 0; break;
+				case 3: srcX = 0; srcY = 32; break;
+				case 4: srcX = 32; srcY = 32; break;
+				case 5: srcX = 64; srcY = 32; break;
 			}
 			break;
 		default: HALT( "arienai" ); break;
 	}
-	image->draw( dstX * 2, dstY * 2, srcX, srcY, 32, 32 ); //由于分辨率提高了一倍，因此此处的位置翻倍
+	image->draw( dstX , dstY , srcX, srcY, 32, 32 ); //由于分辨率提高了一倍，因此此处的位置翻倍
 }
 
 

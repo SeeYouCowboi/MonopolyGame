@@ -116,7 +116,7 @@ void Parent::startLoading(){
 	std::ostringstream oss;
 	oss << "data/stageData/stageData.txt";
 	File file(oss.str().c_str()); //const char *
-	mState = new State( file.getData(), file.getSize());
+	mState = new State( file.getData(), file.getSize(), mStageID);
 }
 
 void Parent::drawState() const {
