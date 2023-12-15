@@ -192,10 +192,15 @@ void State::update(){
 		o.mPosi = (o.mPosi + rand()%12 + 1) % 40;
 		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
 	}
-	StaticObject& s = *mStaticObjs[o.mPosi];
-	if (o.hasPressedBuyButton() && s.isBuyable()) {
-		if ( s.getBelonging() == 0xffff) {
+	StaticObject* s = mStaticObjs[o.mPosi];
+	if (o.hasPressedBuyButton() && s->isBuyable()) {
+	  Estate* es = dynamic_cast<Estate*> (s);
+		if ( es->getBelonging() == 0xffff) {
 			// 地产是无主的
+			if(o.mMoney >= es->getPurPrice(0)){
+			  o.mMoney -= es->getPurPrice(0);
+			  es->setBelonging(o.getID());
+			}
 		}
 		else if (s.getBelonging() == o.getID() && isUpgradable(o.mPosi)) {
 			// 地产是自己的且满足升级条件
