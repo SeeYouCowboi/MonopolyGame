@@ -39,7 +39,7 @@ bool Pad::isTriggered( Button b, int pid ){
 	Input::Keyboard kb = im.keyboard();
 	bool ret = false;
 	if ( pid == 0 ){
-		int table[] = { 'd', 'x', 'w', 'z', 'a', 's', 'q' };
+		int table[] = { 'd', 'b', 'w', 'z', 'a', 's', 'q' };
 		ret = kb.isTriggered( table[ b ] );
 	}else{
 		int table[] = { 'l', ',', 'i', 'm', 'j', 'k', 'q' };

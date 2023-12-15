@@ -82,6 +82,15 @@ bool DynamicObject::hasPressedRollButton() {
 	}
 }
 
+bool DynamicObject::hasPressedBuyButton() {
+	if (mType == TYPE_PLAYER) {
+		return Pad::isTriggered(Pad::B);
+	}
+	else {
+		return false;
+	}
+}
+
 void DynamicObject::set( int x, int y, Type type ){
 	////转换为内部坐标
 	//mX = convertCellToInner( x );
@@ -126,14 +135,12 @@ void DynamicObject::draw( const Image* image ) const {
 
 
 
-
-void DynamicObject::getCell( int* x, int* y ) const {
-	//*x = mX / 16000;
-	//*y = mY / 16000;
-}
-
 bool DynamicObject::isPlayer() const {
 	return ( mType == TYPE_PLAYER );
+}
+
+int DynamicObject::getID() const {
+	return mPlayerID;
 }
 
 //bool DynamicObject::isEnemy() const {

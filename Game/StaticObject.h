@@ -21,13 +21,19 @@ public:
 		FLAG_NONE,
 	};
 	StaticObject();
+	virtual ~StaticObject();
 
 	bool checkFlag( Flag ) const;
+	bool isBuyable() const;
 	void setFlag( Flag );
 	void setID(unsigned);
 	void draw( int x, int y, const Image* ) const;
+	unsigned getBelonging()const;
+	void setBelonging(unsigned);
 	
+
 private:
+	unsigned mBelonging;
 	Flag mFlag; //标志
 	unsigned mID;
 };
@@ -38,7 +44,6 @@ public:
 	std::string getCity()const;
 	unsigned getPurPrice( unsigned )const;
 	unsigned getTollPrice( unsigned )const;
-	unsigned getBelonging()const;
 	unsigned getState()const;
 	void setPurPrice(int, unsigned);
 	void setTollPrice(int, unsigned);
@@ -49,7 +54,6 @@ private:
 	std::string mCity;
 	unsigned int mPurPrice[3];
 	unsigned int mTollPrice[6];
-	unsigned mBelonging;
 	unsigned mState;
 };
 

@@ -29,8 +29,8 @@ void Play::update( Parent* parent ){
 
 	State* state = parent->getState();
 
-	////如果按空格键，则暂停
-	////清除后报告
+	////TODO 判断游戏结束逻辑编写处
+	////
 	//if ( parent->getMode() == Parent::MODE_4P ){
 	//	if ( cleared && !die1P ){
 	//		parent->moveTo( Parent::NEXT_CLEAR );

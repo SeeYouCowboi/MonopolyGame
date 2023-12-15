@@ -6,6 +6,7 @@ using namespace GameLib;
 
 StaticObject::StaticObject() :
 mFlag( FLAG_NONE ),
+mBelonging(0xffff),
 mID( 0 ){
 }
 
@@ -20,6 +21,23 @@ bool StaticObject::checkFlag( Flag f ) const {
 void StaticObject::setID(unsigned id) {
 	mID = id;
 }
+
+bool StaticObject::isBuyable() const {
+	if ((mFlag == FLAG_AIRPORT || mFlag == FLAG_ESTATE || mFlag == FLAG_WATERCOMP)) {
+		return true;
+	}
+	else return false;
+}
+
+void StaticObject::setBelonging(unsigned b) {
+	mBelonging = b;
+}
+
+unsigned StaticObject::getBelonging() const {
+	return mBelonging;
+}
+
+
 
 void StaticObject::draw( int x, int y, const Image* image ) const {
 	//int srcX = -1;
@@ -48,7 +66,6 @@ void StaticObject::draw( int x, int y, const Image* image ) const {
 Estate::Estate(unsigned id, std::string cntry, std::string city) :
 	mCountry(cntry),
 	mCity(city),
-	mBelonging(0),
 	mPurPrice(),
 	mTollPrice(),
 	mState(0)
@@ -84,10 +101,9 @@ unsigned Estate::getTollPrice(unsigned i) const {
 	return mTollPrice[i];
 }
 
-unsigned Estate::getBelonging() const {
-	return mBelonging;
-}
+
 
 unsigned Estate::getState() const {
 	return mState;
 }
+

@@ -14,8 +14,9 @@ public:
 	static const int STAGE_ID_2PLAYERS = 0;
 	State( const char* stageData, int size, int sid);
 	~State();
+	bool isUpgradable(int posi) const;
 	void update();
-	void draw() const;
+	void draw() const;	
 	//从外部获取的信息
 private:
 
@@ -28,7 +29,8 @@ private:
 	Image* mMapImage; //图片
 	std::vector<StaticObject*> mStaticObjs;
 	int mStageDataSize;
-	int mTakeTure;
+	int mTakeTurn;
+	int mTurnState;
 };
 
 #endif

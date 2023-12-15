@@ -20,7 +20,8 @@ mStageID( sid ),
 mDynamicObjects( 0 ),
 mDynamicObjectNumber( 0 ),
 mStaticObjs(0),
-mTakeTure(0),
+mTakeTurn(0),
+mTurnState(0),
 mStageDataSize(size) {
 	Framework::instance().setwidth(600);
 	Framework f = Framework::instance(); //再用几次
@@ -155,13 +156,50 @@ void State::draw() const {
 
 }
 
+bool State::isUpgradable(int posi) const {
+	if (!mStaticObjs[posi]->checkFlag(StaticObject::FLAG_ESTATE))return false;
+	if (mStaticObjs[posi]->getBelonging() == 0xffff)return false;
+	Estate* nowEstate = dynamic_cast<Estate*>(mStaticObjs[posi]);
+
+	for (int i = 1; i <= 3; i++) {
+		int lp = (posi + mStaticObjs.size() - i) % mStaticObjs.size();
+		if (!(mStaticObjs[lp]->checkFlag(StaticObject::FLAG_ESTATE)) )
+			continue;
+		Estate* lEstate = dynamic_cast<Estate*> (mStaticObjs[lp]);
+		if (lEstate->getCountry() != nowEstate->getCountry())
+			break;
+		else if (lEstate->getBelonging() != nowEstate->getBelonging())
+			return false;
+	}
+	for (int i = 1; i <= 3; i++) {
+		int rp = (posi + mStaticObjs.size() + i) % mStaticObjs.size();
+		if (!(mStaticObjs[rp]->checkFlag(StaticObject::FLAG_ESTATE)))
+			continue;
+		Estate* rEstate = dynamic_cast<Estate*> (mStaticObjs[rp]);
+		if (rEstate->getCountry() != nowEstate->getCountry())
+			break;
+		else if (rEstate->getBelonging() != nowEstate->getBelonging())
+			return false;
+	}
+	return true;
+}
+
 
 void State::update(){
 	//todo
-	DynamicObject& o = mDynamicObjects[mTakeTure];
+	DynamicObject& o = mDynamicObjects[mTakeTurn];
 	if (o.hasPressedRollButton()) {
 		o.mPosi = (o.mPosi + rand()%12 + 1) % 40;
-		mTakeTure = (mTakeTure + 1) % mDynamicObjectNumber;
+		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
+	}
+	StaticObject& s = *mStaticObjs[o.mPosi];
+	if (o.hasPressedBuyButton() && s.isBuyable()) {
+		if ( s.getBelonging() == 0xffff) {
+			// 地产是无主的
+		}
+		else if (s.getBelonging() == o.getID() && isUpgradable(o.mPosi)) {
+			// 地产是自己的且满足升级条件
+		}
 	}
 	
 }
