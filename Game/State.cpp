@@ -9,6 +9,7 @@
 #include <cstring>
 #include <sstream>
 #include <cstdlib>
+#include <cstdio>  // 包含头文件以使用 sprintf_s
 
 using namespace GameLib;
 
@@ -27,6 +28,8 @@ mStageDataSize(size) {
 	Framework f = Framework::instance(); //再用几次
 	mObjImage = new Image( "data/image/MonopolyObj.tga" );
 	mMapImage = new Image("data/image/MonopolyTable.tga");
+	mStaBelongImage = new Image("data/image/StaticStateBelonging2.tga");
+	mStaUpgradeImage = new Image("data/image/StaticStateUpgrade.tga");
 	int maxs = size;
 	std::istringstream stageDataStream(stageData);
 	char c = '?';
@@ -47,8 +50,10 @@ mStageDataSize(size) {
 			stageDataStream >> c;
 			std::string cntry, city, emp;
 			unsigned pri;
-			Estate ee = Estate::Estate(0, "unknown", "unknown");
-			StaticObject so;
+			Estate* ee;
+			StaticObject* so = new StaticObject();
+			so->setID(iid);
+			so->setPosi(iid - 1);
 			switch (c)
 			{
 			case 'e':
@@ -57,51 +62,51 @@ mStageDataSize(size) {
 				std::getline(stageDataStream, city);
 				city.erase(city.length() - 1);
 				cntry.erase(cntry.length() - 1);
-				ee = Estate::Estate(iid, cntry, city);
+				ee = new Estate(iid, cntry, city);
+				ee->setFlag(StaticObject::FLAG_ESTATE);
+				ee->setID(iid);
+				ee->setPosi(iid - 1);
 				for (int i = 0; i < 3; i++) {
 					stageDataStream >> pri;
-					ee.setPurPrice(i, pri);
+					ee->setPurPrice(i, pri);
 				}
 				for (int i = 0; i < 6; i++) {
 					stageDataStream >> pri;
-					ee.setTollPrice(i, pri);
+					ee->setTollPrice(i, pri);
 				}
-				mStaticObjs.push_back(&ee);
+				mStaticObjs.push_back(ee);
 				break;
 			case 's':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_START);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_START);
+				mStaticObjs.push_back(so);
 				break;
 			case 'w':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_WATERCOMP);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_WATERCOMP);
+				mStaticObjs.push_back(so);
 				break;
 			case 't':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_TREASURE);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_TREASURE);
+				mStaticObjs.push_back(so);
 				break;
 			case 'x':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_TAX);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_TAX);
+				mStaticObjs.push_back(so);
 				break;
 			case 'a':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_AIRPORT);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_AIRPORT);
+				mStaticObjs.push_back(so);
 				break;
 			case 'o':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_TOPRISON);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_TOPRISON);
+				mStaticObjs.push_back(so);
 				break;
 			case 'v':
-				so.setID(iid);
-				so.setFlag(StaticObject::FLAG_VACATION);
-				mStaticObjs.push_back(&so);
+				so->setFlag(StaticObject::FLAG_VACATION);
+				mStaticObjs.push_back(so);
+				break;
+			case 'p':
+				so->setFlag(StaticObject::FLAG_PRISON);
+				mStaticObjs.push_back(so);
 				break;
 			default:
 				ASSERT("Bakana!");
@@ -144,16 +149,21 @@ State::~State(){
 }
 
 void State::draw() const {
-
+	Framework f = Framework::instance();
+	
 	// 绘制背景
 	mMapImage->draw();
+	char buff[50];
 	// 绘制DynamicObjects
-	for (int i = 0; i < mDynamicObjectNumber; ++i) {
+	for (int i = 0; i < mDynamicObjectNumber; i++) {
 		mDynamicObjects[i].draw(mObjImage);
+		sprintf_s(buff, "Playe %d bank: %d\$", mDynamicObjects[i].getID(), mDynamicObjects[i].mMoney);
+		f.drawDebugString(14, 5 + i, buff);
 	}
-	// TODO
 	// 绘制StaticObjects
-
+	for (int i = 0; i < mStaticObjs.size(); i++) {
+		mStaticObjs[i]->draw(mStaBelongImage, mStaUpgradeImage);
+	}
 }
 
 bool State::isUpgradable(int posi) const {
@@ -186,25 +196,60 @@ bool State::isUpgradable(int posi) const {
 
 
 void State::update(){
-	//todo
 	DynamicObject& o = mDynamicObjects[mTakeTurn];
 	if (o.hasPressedRollButton()) {
-		o.mPosi = (o.mPosi + rand()%12 + 1) % 40;
+		o.mPosi = (o.mPosi + ((rand()%5)+(rand()%5) + 1)) % 40;
 		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
 	}
-	StaticObject* s = mStaticObjs[o.mPosi];
-	if (o.hasPressedBuyButton() && s->isBuyable()) {
-	  Estate* es = dynamic_cast<Estate*> (s);
-		if ( es->getBelonging() == 0xffff) {
-			// 地产是无主的
-			if(o.mMoney >= es->getPurPrice(0)){
-			  o.mMoney -= es->getPurPrice(0);
-			  es->setBelonging(o.getID());
+
+	int preTakeTurn = (mTakeTurn - 1 + mDynamicObjectNumber) % mDynamicObjectNumber;
+	DynamicObject& po = mDynamicObjects[preTakeTurn];
+	StaticObject* s = mStaticObjs[po.mPosi];
+	if (po.hasPressedBuyButton() && s->isBuyable()) {
+		if (s->checkFlag(StaticObject::FLAG_ESTATE))
+		{// 地产
+			Estate* es = dynamic_cast<Estate*> (s);
+			if (es->getBelonging() == 0xffff) {
+				// 地产是无主的
+				if (po.mMoney >= es->getPurPrice(0)) {
+					po.mMoney -= es->getPurPrice(0);
+					es->setBelonging(po.getID());
+				}
+				else {
+					// TODO
+					// 无钱购买
+				}
+			}
+			else if (es->getBelonging() == po.getID() && isUpgradable(po.mPosi)) {
+				// 地产是自己的且满足升级条件
+				if (po.mMoney >= es->getPurPrice(es->getState())) {
+					po.mMoney -= es->getPurPrice(es->getState());
+					es->setState(es->getState() + 1);
+				}
+				else {
+					// TODO
+					// 无钱升级
+				}
+			}
+		}else if (s->checkFlag(StaticObject::FLAG_AIRPORT)) {
+			// 机场
+			if (s->getBelonging() == 0xffff) {
+				if (po.mMoney >= s->price) {
+					po.mMoney -= s->price;
+					s->setBelonging(po.getID());
+				}
+			}
+		}else if (s->checkFlag(StaticObject::FLAG_WATERCOMP)) {
+			// 水电公司
+			if (s->getBelonging() == 0xffff) {
+				if (po.mMoney >= s->price) {
+					po.mMoney -= s->price;
+					s->setBelonging(po.getID());
+				}
 			}
 		}
-		else if (s.getBelonging() == o.getID() && isUpgradable(o.mPosi)) {
-			// 地产是自己的且满足升级条件
-		}
+		
+	
 	}
 	
 }

@@ -24,6 +24,8 @@ Osaka
 100 160 280
 20 40 90 180 270 400
 
+-s
+
 -e
 Japen
 Hokkaido
@@ -165,3 +167,6 @@ New York
 35 125 250 370 500 700
 
 =w=
+-a »ú³¡
+-s surprise
+-t treasure

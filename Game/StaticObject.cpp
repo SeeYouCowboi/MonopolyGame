@@ -3,11 +3,52 @@ using namespace GameLib;
 
 #include "Game/StaticObject.h"
 #include "Image.h"
+#include <climits>
+
+namespace {
+	int convertPosiToPixelx(int x) {
+		if (x >= 0 && x <= 10) {
+			return x * 52 + 15;
+		}
+		else if (x >= 11 && x <= 19) {
+			return 535;
+		}
+		else if (x >= 20 && x <= 30) {
+			return 535 - (x - 20) * 52;
+		}
+		else if (x >= 31 && x <= 40) {
+			return 6;
+		}
+		else HALT("Invalid");
+	}
+
+	int convertPosiToPixely(int y) {
+		if (y >= 0 && y <= 10) {
+			return 3;
+		}
+		else if (y >= 11 && y <= 20) {
+			return  78 + (y - 11) * 52;
+		}
+		else if (y >= 21 && y <= 30) {
+			return 554;
+		}
+		else if (y >= 31 && y <= 39) {
+			return 554 - (y - 31) * 52;
+		}
+		else HALT("Invalid");
+	}
+}
 
 StaticObject::StaticObject() :
 mFlag( FLAG_NONE ),
 mBelonging(0xffff),
-mID( 0 ){
+mID( 0 ),
+mPosi( 0 ),
+price(150){
+}
+
+StaticObject::~StaticObject() {
+
 }
 
 void StaticObject::setFlag( Flag f ){
@@ -37,29 +78,38 @@ unsigned StaticObject::getBelonging() const {
 	return mBelonging;
 }
 
+unsigned StaticObject::getPosi() const {
+	return mPosi;
+}
+
+void StaticObject::setPosi(unsigned p) {
+	mPosi = p;
+}
 
 
-void StaticObject::draw( int x, int y, const Image* image ) const {
-	//int srcX = -1;
-	//int srcY = -1;
-	//bool floor = false;
-	//if ( mFlags & FLAG_WALL ){
-	//	srcX = 96; 
-	//	srcY = 32;
-	//}else if ( mFlags & FLAG_BRICK ){
-	//	if ( mFlags & ( FLAG_FIRE_X | FLAG_FIRE_Y ) ){ //烧了
-	//		srcX = 0; 
-	//		srcY = 96;
-	//	}else{
-	//		srcX = 0; 
-	//		srcY = 64;
-	//	}
-	//}else{
-	//	srcX = 32; 
-	//	srcY = 64; 
-	//	floor = true;
-	//}
-	//image->draw( x*32, y*32, srcX, srcY, 32, 32 );
+
+void StaticObject::draw( const Image* blImage, const Image* upImage ) const {
+	if (mBelonging != 0xffff)
+	{
+		int srcX = (mBelonging % 4) * 32;
+		int srcY = (mBelonging / 4) * 32;
+
+		blImage->draw(convertPosiToPixelx(mPosi), convertPosiToPixely(mPosi), srcX, srcY, 32, 32);
+	}
+}
+
+
+void Estate::draw(const Image* blImage, const Image* upImage) const {
+	if (mBelonging != 0xffff)
+	{
+		int srcXbl = (mBelonging % 4) * 32;
+		int srcYbl = (mBelonging / 4) * 32;
+		blImage->draw(convertPosiToPixelx(mPosi), convertPosiToPixely(mPosi), srcXbl, srcYbl, 32, 32);
+
+		int srcXup = (mState % 4) * 32;
+		int srcYup = (mState % 4) * 32;
+		upImage->draw(convertPosiToPixelx(mPosi), convertPosiToPixely(mPosi), srcXup, srcYup, 32, 32);
+	}
 }
 
 
@@ -92,8 +142,8 @@ std::string Estate::getCity() const {
 }
 
 unsigned Estate::getPurPrice(unsigned i) const {
-	ASSERT(i < 3);
-	return mPurPrice[i];
+	if (i >= 3) return UINT32_MAX;
+	else return mPurPrice[i];
 }
 
 unsigned Estate::getTollPrice(unsigned i) const {
@@ -106,4 +156,9 @@ unsigned Estate::getTollPrice(unsigned i) const {
 unsigned Estate::getState() const {
 	return mState;
 }
+
+void Estate::setState(unsigned s) {
+	mState = s;
+}
+
 

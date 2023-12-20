@@ -50,7 +50,7 @@ void Play::update( Parent* parent ){
 	//	}
 	//}
 	//使用B按钮暂停
-	if ( Pad::isTriggered( Pad::B ) ){
+	if ( Pad::isTriggered( Pad::R ) ){
 		parent->moveTo( Parent::NEXT_PAUSE );
 	}
 	//更新

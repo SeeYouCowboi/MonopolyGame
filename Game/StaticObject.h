@@ -27,13 +27,19 @@ public:
 	bool isBuyable() const;
 	void setFlag( Flag );
 	void setID(unsigned);
-	void draw( int x, int y, const Image* ) const;
+	virtual void draw(const Image*, const Image*) const;
 	unsigned getBelonging()const;
 	void setBelonging(unsigned);
-	
+	unsigned getPosi() const;
+	void setPosi(unsigned);
+	unsigned price;
+
+protected:
+	unsigned mPosi;
+	unsigned mBelonging; //无主的和系统的地块该值设为0xffff
+
 
 private:
-	unsigned mBelonging;
 	Flag mFlag; //标志
 	unsigned mID;
 };
@@ -45,8 +51,10 @@ public:
 	unsigned getPurPrice( unsigned )const;
 	unsigned getTollPrice( unsigned )const;
 	unsigned getState()const;
+	void setState(unsigned);
 	void setPurPrice(int, unsigned);
 	void setTollPrice(int, unsigned);
+	void draw (const Image*,const Image*) const override;
 
 	Estate(unsigned, std::string, std::string);
 private:

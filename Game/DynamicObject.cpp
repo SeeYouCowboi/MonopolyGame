@@ -26,13 +26,13 @@ int convertInnerToPixel( int x ){
 
 int convertPosiToPixelx(int x) {
 	if (x >= 0 && x <= 10) {
-		return x * 52 + 5;
+		return x * 52 + 15;
 	}
 	else if (x >= 11 && x <= 20) {
 		return 562;
 	}
 	else if (x >= 21 && x <= 30) {
-		return 525 - (x - 21) * 52;
+		return 483 - (x - 21) * 52;
 	}
 	else if (x >= 31 && x <= 39) {
 		return 6;
@@ -51,7 +51,7 @@ int convertPosiToPixely(int y) {
 		return 552;
 	}
 	else if (y >= 31 && y <= 39) {
-		return 532 - (y-31)*52;
+		return 480 - (y-31)*52;
 	}
 	else HALT("Invalid");
 }
@@ -122,9 +122,9 @@ void DynamicObject::draw( const Image* image ) const {
 				case 0: srcX = 0; srcY = 0; break;
 				case 1: srcX = 32; srcY = 0; break;
 				case 2: srcX = 64; srcY = 0; break;
-				case 3: srcX = 0; srcY = 32; break;
-				case 4: srcX = 32; srcY = 32; break;
-				case 5: srcX = 64; srcY = 32; break;
+				case 3: srcX = 96; srcY = 0; break;
+				case 4: srcX = 0; srcY = 32; break;
+				case 5: srcX = 32; srcY = 32; break;
 			}
 			break;
 		default: HALT( "arienai" ); break;

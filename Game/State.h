@@ -1,5 +1,6 @@
 ﻿#ifndef INCLUDED_GAME_STATE_H
 #define INCLUDED_GAME_STATE_H
+#define STATICOBJ_NUM 40
 
 
 #include <vector> 
@@ -25,6 +26,8 @@ private:
 	int mDynamicObjectNumber;
 
 	int mStageID;
+	Image* mStaBelongImage;
+	Image* mStaUpgradeImage;
 	Image* mObjImage; 
 	Image* mMapImage; //图片
 	std::vector<StaticObject*> mStaticObjs;
