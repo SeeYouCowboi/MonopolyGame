@@ -1,5 +1,6 @@
 ﻿#ifndef INCLUDED_GAME_STATIC_OBJECT_H
 #define INCLUDED_GAME_STATIC_OBJECT_H
+#define NO_BELONGING 0xffff
 #include <string>
 
 class Image;

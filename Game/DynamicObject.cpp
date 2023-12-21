@@ -63,14 +63,18 @@ DynamicObject::DynamicObject() :
 mType( TYPE_NONE ),
 mPosi( 0 ),
 mPlayerID( 0 ),
-mMoney( -1 ){
+mMoney( -1 ),
+inPrison(false),
+inVaccation(false){
 }
 
 DynamicObject::DynamicObject(Type mType, int mPosi, int mMoney, unsigned mPlayerID):
 	mType(mType),
 	mPosi(mPosi),
 	mPlayerID(mPlayerID),
-	mMoney(mMoney) {
+	mMoney(mMoney),
+	inPrison(false),
+	inVaccation(false) {
 }
 
 bool DynamicObject::hasPressedRollButton() {
@@ -151,6 +155,3 @@ void DynamicObject::die(){
 	mType = TYPE_NONE;
 }
 
-bool DynamicObject::isDead() const {
-	return ( mType == TYPE_NONE );
-}

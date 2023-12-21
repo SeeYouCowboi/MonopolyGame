@@ -22,7 +22,8 @@ public:
 	bool isPlayer() const;
 	int getID() const;
 	void die(); //死亡（将mType设置为NONE）
-	bool isDead() const; //死了吗
+	int inPrison; //是否在监狱里
+	bool inVaccation; //是否在度假中
 
 	//不要将直接修改的内容字段设为私有。因为会经常从State使用它。
 	Type mType;

@@ -24,7 +24,7 @@ Osaka
 100 160 280
 20 40 90 180 270 400
 
--s
+-c
 
 -e
 Japen
@@ -90,7 +90,7 @@ Shenzhen
 240 220 500
 35 100 200 250 320 520
 
--s
+-a
 
 -e
 China
@@ -104,7 +104,7 @@ Beijing
 300 300 1400
 35 100 250 450 700 1000
 
--a
+-c
 
 -e
 France
@@ -150,7 +150,7 @@ London
 
 -a
 
--s
+-c
 
 -e
 USA
@@ -168,5 +168,5 @@ New York
 
 =w=
 -a »ú³¡
--s surprise
+-c surprise
 -t treasure

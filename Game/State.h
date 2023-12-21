@@ -1,6 +1,7 @@
 ﻿#ifndef INCLUDED_GAME_STATE_H
 #define INCLUDED_GAME_STATE_H
 #define STATICOBJ_NUM 40
+const int  FRONT_COLOR = 0xffd05299;
 
 
 #include <vector> 
@@ -34,6 +35,11 @@ private:
 	int mStageDataSize;
 	int mTakeTurn;
 	int mTurnState;
+	int getAirportNum(int);
+	int getWaterNum(int);
+
+	char buffer[15][50];
+	void pushToBuffer(char* str);
 };
 
 #endif

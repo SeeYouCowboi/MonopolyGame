@@ -13,6 +13,13 @@
 
 using namespace GameLib;
 
+namespace {
+	const int MAX_ROWS = 15;
+	const int MAX_COLS = 50;
+
+	int currentRow = 0;
+}
+
 
 State::State( const char* stageData, int size, int sid) :
 mObjImage( 0 ),
@@ -23,7 +30,8 @@ mDynamicObjectNumber( 0 ),
 mStaticObjs(0),
 mTakeTurn(0),
 mTurnState(0),
-mStageDataSize(size) {
+mStageDataSize(size),
+buffer() {
 	Framework::instance().setwidth(600);
 	Framework f = Framework::instance(); //再用几次
 	mObjImage = new Image( "data/image/MonopolyObj.tga" );
@@ -108,6 +116,10 @@ mStageDataSize(size) {
 				so->setFlag(StaticObject::FLAG_PRISON);
 				mStaticObjs.push_back(so);
 				break;
+			case 'c':
+				so->setFlag(StaticObject::FLAG_CHANCE);
+				mStaticObjs.push_back(so);
+				break;
 			default:
 				ASSERT("Bakana!");
 				break;
@@ -140,6 +152,10 @@ mStageDataSize(size) {
 		mDynamicObjects[i] = DynamicObject(DynamicObject::TYPE_PLAYER, 0, 1000, i);
 	}
 
+	for (int i = 0; i < 15; i++) {
+		buffer[i][0] = '\0';
+	}
+
 }
 
 State::~State(){
@@ -153,16 +169,24 @@ void State::draw() const {
 	
 	// 绘制背景
 	mMapImage->draw();
-	char buff[50];
+	char tempbuff[50];
 	// 绘制DynamicObjects
 	for (int i = 0; i < mDynamicObjectNumber; i++) {
 		mDynamicObjects[i].draw(mObjImage);
-		sprintf_s(buff, "Playe %d bank: %d\$", mDynamicObjects[i].getID(), mDynamicObjects[i].mMoney);
-		f.drawDebugString(14, 5 + i, buff);
+		sprintf_s(tempbuff, "Playe %d bank: %d\$", mDynamicObjects[i].getID(), mDynamicObjects[i].mMoney);
+		f.drawDebugString(14, 5 + i, tempbuff);
 	}
 	// 绘制StaticObjects
 	for (int i = 0; i < mStaticObjs.size(); i++) {
 		mStaticObjs[i]->draw(mStaBelongImage, mStaUpgradeImage);
+	}
+	// 绘制系统消息
+	for (int i = (currentRow-1+MAX_ROWS)%MAX_ROWS, j=0; i != currentRow; i = (i-1 + MAX_ROWS) % MAX_ROWS)
+	{
+		if (buffer[i][0] == '\0')break;
+		sprintf_s(tempbuff, buffer[i]);
+		f.drawDebugString(16, 12 + j, tempbuff, FRONT_COLOR);
+		j++;
 	}
 }
 
@@ -195,11 +219,137 @@ bool State::isUpgradable(int posi) const {
 }
 
 
+int State::getAirportNum(int playerID)
+{
+	int num = 0;
+	for (int i = 0; i < mStaticObjs.size(); i++) {
+		if (mStaticObjs[i]->checkFlag(StaticObject::FLAG_AIRPORT) && mStaticObjs[i]->getBelonging() == playerID) {
+			num++;
+		}
+	}
+	return num;
+}
+
+int State::getWaterNum(int playerID)
+{
+	int num = 0;
+	for (int i = 0; i < mStaticObjs.size(); i++) {
+		if (mStaticObjs[i]->checkFlag(StaticObject::FLAG_WATERCOMP) && mStaticObjs[i]->getBelonging() == playerID) {
+			num++;
+		}
+	}
+	return num;
+}
+
 void State::update(){
+	char tempbuff[100];
 	DynamicObject& o = mDynamicObjects[mTakeTurn];
-	if (o.hasPressedRollButton()) {
+	if (o.hasPressedRollButton() && !o.inPrison && !o.inVaccation) {
 		o.mPosi = (o.mPosi + ((rand()%5)+(rand()%5) + 1)) % 40;
+		// 收过路费
+		StaticObject* s = mStaticObjs[o.mPosi];
+		if (s->getBelonging() != NO_BELONGING) {
+			if (s->checkFlag(StaticObject::FLAG_ESTATE)) {
+				Estate* es = dynamic_cast<Estate*> (s);
+				if (es->getBelonging() != o.getID()) {
+					o.mMoney -= es->getTollPrice(es->getState());
+					mDynamicObjects[es->getBelonging()].mMoney += es->getTollPrice(es->getState());
+					sprintf_s(tempbuff, "Player %d pay %d$ to player %d for toll!", o.getID(), es->getTollPrice(es->getState()), es->getBelonging());
+					pushToBuffer(tempbuff);
+				}
+			}
+			else if (s->checkFlag(StaticObject::FLAG_AIRPORT)) {
+				if (s->getBelonging() != o.getID()) {
+					int n = getAirportNum(s->getBelonging());
+					int toll = 0;
+					switch (n)
+					{
+					case 1:
+						toll = (rand() % 4 + 1) * 35;
+					case 2:
+						toll = (rand()%4 + rand()%4 + 2) * 45;
+					case 3:
+						toll = (rand()%5 + rand()%5 + rand()%4 + 3) * 55;
+					default:
+						ASSERT("Bakana!");
+						break;
+					}
+					o.mMoney -= toll;
+					mDynamicObjects[s->getBelonging()].mMoney += toll;
+					sprintf(tempbuff, "Player %d pay %d$ to player %d for toll =w=", o.getID(), toll, s->getBelonging());
+					pushToBuffer(tempbuff);
+				}
+			}
+			else if (s->checkFlag(StaticObject::FLAG_WATERCOMP)) {
+				if (s->getBelonging() != o.getID()) {
+					int n = getWaterNum(s->getBelonging());
+					int toll = 0;
+					switch (n)
+					{
+					case 1:
+						toll = (rand() % 3 + rand()% 3) * 35;
+					case 2:
+						toll = (rand() % 4 + rand() % 4 + rand()%4) * 40;
+					case 3:
+						toll = (rand() % 6 + rand() % 6 + rand()%6) * 50;
+					default:
+						ASSERT("Bakana!");
+						break;
+					}
+					o.mMoney -= toll;
+					mDynamicObjects[s->getBelonging()].mMoney += toll;
+					sprintf(tempbuff, "Player %d pay %d$ to player %d for toll!", o.getID(), toll, s->getBelonging());
+					pushToBuffer(tempbuff);
+				}
+			}
+		}
+		
+		if (s->checkFlag(StaticObject::FLAG_TREASURE)) {
+			int treasure = rand() % 400 + 200;
+			o.mMoney += treasure;
+			sprintf_s(tempbuff, "Player %d get a treasure! That's %d$!!!", o.getID(), treasure);
+			pushToBuffer(tempbuff);
+		}
+		else if (s->checkFlag(StaticObject::FLAG_TAX)) {
+			o.mMoney -= 250;
+			sprintf_s(tempbuff, "Player %d pay 250$ for tax :-(", o.getID());
+			pushToBuffer(tempbuff);
+		}
+		else if (s->checkFlag(StaticObject::FLAG_TOPRISON)) {
+			o.mPosi = 10;
+			o.inPrison = 1;
+			sprintf_s(tempbuff,"Oops, player %d is sent to prison!", o.getID());
+			pushToBuffer(tempbuff);
+		}
+		else if (s->checkFlag(StaticObject::FLAG_VACATION)) {
+			o.inVaccation = true;
+			o.mMoney -= 100;
+			sprintf_s(tempbuff, "Player %d pays 100$ for a vacation =3=", o.getID());
+			pushToBuffer(tempbuff);
+		}
+		else if (s->checkFlag(StaticObject::FLAG_START)) {
+			o.mMoney += 400;
+			sprintf_s(tempbuff, "Player %d get 400$ for passing the start!", o.getID());
+			pushToBuffer(tempbuff);
+		}
+		else if (s->checkFlag(StaticObject::FLAG_CHANCE)) {
+			//TODO
+			//机会卡
+		}
+
 		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
+	}
+
+	if (o.inPrison) {
+		sprintf_s(tempbuff, "Player %d still in prison, stop for a round =. =",o.getID());
+		pushToBuffer(tempbuff);
+		o.inPrison = false;
+	}
+
+	if (o.inVaccation) {
+		sprintf_s(tempbuff, "Player %d still in vacation, stop for a round =. =", o.getID());
+		pushToBuffer(tempbuff);
+		o.inVaccation = false;
 	}
 
 	int preTakeTurn = (mTakeTurn - 1 + mDynamicObjectNumber) % mDynamicObjectNumber;
@@ -214,6 +364,9 @@ void State::update(){
 				if (po.mMoney >= es->getPurPrice(0)) {
 					po.mMoney -= es->getPurPrice(0);
 					es->setBelonging(po.getID());
+					sprintf_s(tempbuff, "OMG, player %d has bought %s in %s!!",
+								po.getID(), es->getCity().c_str(), es->getCountry().c_str());
+					pushToBuffer(tempbuff);
 				}
 				else {
 					// TODO
@@ -237,6 +390,8 @@ void State::update(){
 				if (po.mMoney >= s->price) {
 					po.mMoney -= s->price;
 					s->setBelonging(po.getID());
+					sprintf_s(tempbuff, "Oh my dear lord, player %d has bought an fucking  airport!!",po.getID());
+					pushToBuffer(tempbuff);
 				}
 			}
 		}else if (s->checkFlag(StaticObject::FLAG_WATERCOMP)) {
@@ -245,13 +400,35 @@ void State::update(){
 				if (po.mMoney >= s->price) {
 					po.mMoney -= s->price;
 					s->setBelonging(po.getID());
+					sprintf_s(tempbuff, "Jeasus, player %d has bought an freaking WaterFactory!!", po.getID());
 				}
 			}
 		}
 		
 	
 	}
-	
+
+}
+
+void State::pushToBuffer(char* str1) {
+	int strLength = strlen(str1);
+
+	// 处理超过50字符的情况
+	if (strLength >= MAX_COLS) {
+		// 先将剩余部分递归调用pushToBuffer，处理下一行
+		pushToBuffer(str1 + MAX_COLS - 1);
+		// 将前50个字符放入当前行
+		strncpy(buffer[currentRow], str1, MAX_COLS-1);
+		buffer[currentRow][MAX_COLS-1] = '\0';  // 确保字符串结尾
+		// 切换到下一行
+		currentRow = (currentRow + 1) % MAX_ROWS;
+	}
+	else {
+		// 将字符串放入当前行
+		strncpy(buffer[currentRow], str1, MAX_COLS-1);
+		buffer[currentRow][MAX_COLS-1] = '\0';  // 确保字符串结尾
+		currentRow = (currentRow + 1) % MAX_ROWS;
+	}
 }
 
 

@@ -41,7 +41,7 @@ namespace {
 
 StaticObject::StaticObject() :
 mFlag( FLAG_NONE ),
-mBelonging(0xffff),
+mBelonging(NO_BELONGING),
 mID( 0 ),
 mPosi( 0 ),
 price(150){
