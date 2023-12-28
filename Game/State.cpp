@@ -3,6 +3,7 @@
 #include "Game/State.h"
 #include "Game/StaticObject.h"
 #include "Game/DynamicObject.h"
+#include "Game/StaticObjFactory.h"
 #include "SoundManager.h"
 #include "Image.h"
 #include <iostream>
@@ -56,74 +57,7 @@ buffer() {
 		if (c == '-') {
 			iid++;
 			stageDataStream >> c;
-			std::string cntry, city, emp;
-			unsigned pri;
-			Estate* ee;
-			StaticObject* so = new StaticObject();
-			so->setID(iid);
-			so->setPosi(iid - 1);
-			switch (c)
-			{
-			case 'e':
-				std::getline(stageDataStream, emp);
-				std::getline(stageDataStream, cntry);
-				std::getline(stageDataStream, city);
-				city.erase(city.length() - 1);
-				cntry.erase(cntry.length() - 1);
-				ee = new Estate(iid, cntry, city);
-				ee->setFlag(StaticObject::FLAG_ESTATE);
-				ee->setID(iid);
-				ee->setPosi(iid - 1);
-				for (int i = 0; i < 3; i++) {
-					stageDataStream >> pri;
-					ee->setPurPrice(i, pri);
-				}
-				for (int i = 0; i < 6; i++) {
-					stageDataStream >> pri;
-					ee->setTollPrice(i, pri);
-				}
-				mStaticObjs.push_back(ee);
-				break;
-			case 's':
-				so->setFlag(StaticObject::FLAG_START);
-				mStaticObjs.push_back(so);
-				break;
-			case 'w':
-				so->setFlag(StaticObject::FLAG_WATERCOMP);
-				mStaticObjs.push_back(so);
-				break;
-			case 't':
-				so->setFlag(StaticObject::FLAG_TREASURE);
-				mStaticObjs.push_back(so);
-				break;
-			case 'x':
-				so->setFlag(StaticObject::FLAG_TAX);
-				mStaticObjs.push_back(so);
-				break;
-			case 'a':
-				so->setFlag(StaticObject::FLAG_AIRPORT);
-				mStaticObjs.push_back(so);
-				break;
-			case 'o':
-				so->setFlag(StaticObject::FLAG_TOPRISON);
-				mStaticObjs.push_back(so);
-				break;
-			case 'v':
-				so->setFlag(StaticObject::FLAG_VACATION);
-				mStaticObjs.push_back(so);
-				break;
-			case 'p':
-				so->setFlag(StaticObject::FLAG_PRISON);
-				mStaticObjs.push_back(so);
-				break;
-			case 'c':
-				so->setFlag(StaticObject::FLAG_CHANCE);
-				mStaticObjs.push_back(so);
-				break;
-			default:
-				ASSERT("Bakana!");
-				break;
-			}
+			mStaticObjs.push_back(StaticObjectFactory::create(c, stageDataStream, iid));
 		}
 		if (c == '\n')stageDataStream >> c;
 		
@@ -242,10 +176,29 @@ int State::getWaterNum(int playerID)
 }
 
 void State::update(){
-	char tempbuff[100];
+	char tempbuff[200];
 	DynamicObject& o = mDynamicObjects[mTakeTurn];
-	if (o.hasPressedRollButton() && !o.inPrison && !o.inVaccation) {
-		o.mPosi = (o.mPosi + ((rand()%5)+(rand()%5) + 1)) % 40;
+	// 回合暂停判断
+	if (o.inPrison) {
+		sprintf_s(tempbuff, "Player %d still in prison, stop for a round =. =", o.getID());
+		pushToBuffer(tempbuff);
+		o.inPrison = false;
+		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
+		DynamicObject& o = mDynamicObjects[mTakeTurn];
+	}
+
+	if (o.inVaccation) {
+		sprintf_s(tempbuff, "Player %d still in vacation, stop for a round =. =", o.getID());
+		pushToBuffer(tempbuff);
+		o.inVaccation = false;
+		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
+		DynamicObject& o = mDynamicObjects[mTakeTurn];
+	}
+
+
+	if (o.hasPressedRollButton() && !o.inPrison && !o.inVaccation && !o.pass) {
+		o.mPosi = (o.mPosi + 1) % 40;
+		//o.mPosi = (o.mPosi + ((rand()%5)+(rand()%5) + 1)) % 40;
 		// 收过路费
 		StaticObject* s = mStaticObjs[o.mPosi];
 		if (s->getBelonging() != NO_BELONGING) {
@@ -276,7 +229,7 @@ void State::update(){
 					}
 					o.mMoney -= toll;
 					mDynamicObjects[s->getBelonging()].mMoney += toll;
-					sprintf(tempbuff, "Player %d pay %d$ to player %d for toll =w=", o.getID(), toll, s->getBelonging());
+					sprintf(tempbuff, "Player %d pay %d$ to player %d for Airport construction fee =w=", o.getID(), toll, s->getBelonging());
 					pushToBuffer(tempbuff);
 				}
 			}
@@ -298,12 +251,13 @@ void State::update(){
 					}
 					o.mMoney -= toll;
 					mDynamicObjects[s->getBelonging()].mMoney += toll;
-					sprintf(tempbuff, "Player %d pay %d$ to player %d for toll!", o.getID(), toll, s->getBelonging());
+					sprintf(tempbuff, "Player %d pay %d$ to player %d for his water charge", o.getID(), toll, s->getBelonging());
 					pushToBuffer(tempbuff);
 				}
 			}
 		}
 		
+		// 中立地块判断
 		if (s->checkFlag(StaticObject::FLAG_TREASURE)) {
 			int treasure = rand() % 400 + 200;
 			o.mMoney += treasure;
@@ -333,24 +287,36 @@ void State::update(){
 			pushToBuffer(tempbuff);
 		}
 		else if (s->checkFlag(StaticObject::FLAG_CHANCE)) {
-			//TODO
-			//机会卡
+			int tempdice = rand() % 4;
+			switch (tempdice) {
+			case 0:
+				o.mMoney -= 200;
+				o.inVaccation = true;
+				sprintf(tempbuff, "The player twisted their foot while mountain climbing, incurring an expense of 200 dollars and taking a one-turn break.");
+				pushToBuffer(tempbuff);
+				break;
+			case 1:
+				o.mMoney += 300;
+				sprintf(tempbuff, "The player acted bravely in a just case,received praise from the police officer, and was awarded a bonus of 300 dollars.");
+				pushToBuffer(tempbuff);
+				break;
+			case 2:
+				o.mPosi = rand() % 39 + 1;
+				sprintf(tempbuff,"The player was abducted by aliens for experimentation. Upon waking up, he found himself at location %d.",o.mPosi);
+				pushToBuffer(tempbuff);
+				break;
+			case 3:
+				int lot = (rand() % 4 + 2) * 100;
+				o.mMoney += lot;
+				sprintf(tempbuff, "Oh wow, the player won the lottery and received a grand prize of %d dollars!",lot);
+				pushToBuffer(tempbuff);
+				break;
+			}
 		}
 
 		mTakeTurn = (mTakeTurn + 1) % mDynamicObjectNumber;
 	}
 
-	if (o.inPrison) {
-		sprintf_s(tempbuff, "Player %d still in prison, stop for a round =. =",o.getID());
-		pushToBuffer(tempbuff);
-		o.inPrison = false;
-	}
-
-	if (o.inVaccation) {
-		sprintf_s(tempbuff, "Player %d still in vacation, stop for a round =. =", o.getID());
-		pushToBuffer(tempbuff);
-		o.inVaccation = false;
-	}
 
 	int preTakeTurn = (mTakeTurn - 1 + mDynamicObjectNumber) % mDynamicObjectNumber;
 	DynamicObject& po = mDynamicObjects[preTakeTurn];
@@ -369,8 +335,9 @@ void State::update(){
 					pushToBuffer(tempbuff);
 				}
 				else {
-					// TODO
 					// 无钱购买
+					sprintf_s(tempbuff, "Sorry, you don't have enough money to buy this QwQ");
+					pushToBuffer(tempbuff);
 				}
 			}
 			else if (es->getBelonging() == po.getID() && isUpgradable(po.mPosi)) {
@@ -380,8 +347,9 @@ void State::update(){
 					es->setState(es->getState() + 1);
 				}
 				else {
-					// TODO
 					// 无钱升级
+					sprintf_s(tempbuff, "Sorry, you don't have enough money to upgrade this QwQ");
+					pushToBuffer(tempbuff);
 				}
 			}
 		}else if (s->checkFlag(StaticObject::FLAG_AIRPORT)) {

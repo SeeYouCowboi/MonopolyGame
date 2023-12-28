@@ -33,7 +33,7 @@ namespace {
 			return 554;
 		}
 		else if (y >= 31 && y <= 39) {
-			return 554 - (y - 31) * 52;
+			return 500 - (y - 31) * 52;
 		}
 		else HALT("Invalid");
 	}

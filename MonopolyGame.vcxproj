@@ -92,6 +92,7 @@
     <ClCompile Include="Game\DynamicObject.cpp" />
     <ClCompile Include="Game\State.cpp" />
     <ClCompile Include="Game\StaticObject.cpp" />
+    <ClCompile Include="Game\StaticObjFactory.cpp" />
     <ClCompile Include="Sequence\Ending.cpp" />
     <ClCompile Include="Sequence\GameOver.cpp" />
     <ClCompile Include="Sequence\Parent.cpp" />
@@ -120,6 +121,7 @@
     <ClInclude Include="Game\DynamicObject.h" />
     <ClInclude Include="Game\State.h" />
     <ClInclude Include="Game\StaticObject.h" />
+    <ClInclude Include="Game\StaticObjFactory.h" />
     <ClInclude Include="Sequence\Child.h" />
     <ClInclude Include="Sequence\Ending.h" />
     <ClInclude Include="Sequence\GameOver.h" />

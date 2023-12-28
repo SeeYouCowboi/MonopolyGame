@@ -24,6 +24,7 @@ public:
 	void die(); //死亡（将mType设置为NONE）
 	int inPrison; //是否在监狱里
 	bool inVaccation; //是否在度假中
+	bool pass;
 
 	//不要将直接修改的内容字段设为私有。因为会经常从State使用它。
 	Type mType;

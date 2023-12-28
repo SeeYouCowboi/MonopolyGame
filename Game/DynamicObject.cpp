@@ -65,7 +65,8 @@ mPosi( 0 ),
 mPlayerID( 0 ),
 mMoney( -1 ),
 inPrison(false),
-inVaccation(false){
+inVaccation(false),
+pass(false){
 }
 
 DynamicObject::DynamicObject(Type mType, int mPosi, int mMoney, unsigned mPlayerID):
@@ -74,7 +75,8 @@ DynamicObject::DynamicObject(Type mType, int mPosi, int mMoney, unsigned mPlayer
 	mPlayerID(mPlayerID),
 	mMoney(mMoney),
 	inPrison(false),
-	inVaccation(false) {
+	inVaccation(false),
+	pass(false){
 }
 
 bool DynamicObject::hasPressedRollButton() {
